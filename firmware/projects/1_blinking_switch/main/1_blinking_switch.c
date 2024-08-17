@@ -40,7 +40,7 @@ void app_main(void){
     			LedToggle(LED_1);
 				LedOff(LED_2);
 				LedOff(LED_3);
-				vTaskDelay((CONFIG_BLINK_PERIOD+100) / portTICK_PERIOD_MS);
+				vTaskDelay((CONFIG_BLINK_PERIOD) / portTICK_PERIOD_MS);
 
     		break;
     		case SWITCH_2:
@@ -54,7 +54,7 @@ void app_main(void){
 				LedToggle(LED_3);
 				LedOff(LED_2);
 				LedOff(LED_1);
-				vTaskDelay((CONFIG_BLINK_PERIOD+200) / portTICK_PERIOD_MS);
+				vTaskDelay((CONFIG_BLINK_PERIOD) / portTICK_PERIOD_MS);
 
 			break;
 			case 0:
