@@ -19,7 +19,7 @@
  * |:----------:|:-----------------------------------------------|
  * | 12/09/2023 | Document creation		                         |
  *
- * @author Albano Peñalva (albano.penalva@uner.edu.ar)
+ * @author Lonardi, Paula (paula.lonardi@ingenieria.uner.edu.ar)
  *
  */
 
@@ -59,6 +59,23 @@ gpioConf_t vector_digitos[3] = {
 /*==================[internal functions declaration]=========================*/
 
 //funcion del ejercicio 4
+/**
+ * @brief Convierte un número de 32 bits en su representación BCD  y la almacena en un arreglo.
+ *
+ * Esta función toma un número entero de 32 bits y lo descompone en sus dígitos decimales,
+ * almacenando cada dígito en un arreglo proporcionado por el usuario. El arreglo de salida 
+ * contendrá los dígitos en orden inverso, es decir, el dígito menos significativo estará en 
+ * el primer índice del arreglo.
+ *
+ * @param[in] data   El número de 32 bits a convertir.
+ * @param[in] digits El número de dígitos que se deben extraer del número.
+ * @param[out] p_bcd_number Un puntero al arreglo donde se almacenarán los dígitos BCD.
+ *                           El arreglo debe tener al menos `digits` elementos.
+ *
+ * @return Devuelve 1 si la conversión se realizó con éxito.
+ *
+ */
+
 uint8_t  convertToBcdArray (uint32_t data, uint8_t digits, uint8_t *p_bcd_number)
 {
 	for (size_t i = 0; i < digits; i++)
@@ -72,6 +89,20 @@ uint8_t  convertToBcdArray (uint32_t data, uint8_t digits, uint8_t *p_bcd_number
 
 
 //funcion del ejercicio 5
+/**
+ * @brief Configura los pines GPIO correspondientes para representar un valor BCD.
+ *
+ * Esta función toma un valor BCD de 4 bits y configura un conjunto de pines GPIO en alto o bajo 
+ * dependiendo del valor de cada bit. La función inicializa los pines GPIO especificados antes de 
+ * configurarlos según el valor BCD.
+ *
+ * @param[in] valor El valor BCD de 4 bits que se va a representar en los pines GPIO.
+ * @param[in] p_vertor_pines Un puntero al arreglo de estructuras `gpioConf_t` que contiene 
+ *                           la configuración de los pines GPIO. Se asume que este arreglo 
+ *                           tiene al menos 4 elementos.
+ *
+ * @return Devuelve 1 si la operación se realizó con éxito.
+ */
 uint8_t BCD_a_GPIO(uint8_t valor, gpioConf_t *p_vertor_pines)
 	{
 		uint8_t mask = 1; //mascara que se usa en la comparacion
@@ -100,9 +131,26 @@ uint8_t BCD_a_GPIO(uint8_t valor, gpioConf_t *p_vertor_pines)
 	}
 
 
-
-	void mostrar_en_display(uint32_t data, uint8_t digits, gpioConf_t *p_vertor_pines, gpioConf_t *p_vertor_digitos)
-{
+/**
+ * @brief Muestra un valor numérico en un display utilizando pines GPIO.
+ *
+ * Esta función convierte un valor numérico de 32 bits en su representación BCD (Binary-Coded Decimal),
+ * y lo muestra en un display de varios dígitos utilizando pines GPIO. Los pines GPIO son configurados
+ * para seleccionar los dígitos del display y para representar cada dígito en formato BCD.
+ *
+ * 
+ * @param[in] data El valor numérico de 32 bits que se va a mostrar en el display.
+ * @param[in] digits La cantidad de dígitos que se deben mostrar.
+ * @param[in] p_vertor_pines Un puntero al arreglo de estructuras `gpioConf_t` que contiene la configuración de los pines GPIO 
+ *                           para representar el valor BCD. Se espera que este arreglo tenga al menos 4 elementos.
+ * @param[in] p_vertor_digitos Un puntero al arreglo de estructuras `gpioConf_t` que contiene la configuración de los pines GPIO 
+ *                             para seleccionar el dígito del display. Se espera que este arreglo tenga al menos 3 elementos.
+ *
+ * @return void
+ *
+ */
+void mostrar_en_display(uint32_t data, uint8_t digits, gpioConf_t *p_vertor_pines, gpioConf_t *p_vertor_digitos)
+	{
     uint8_t bcd_number[digits];
 			//inicializo los gpio con su numero de pin y 
 	for (size_t i = 0; i < 3; i++)
@@ -134,11 +182,7 @@ uint8_t BCD_a_GPIO(uint8_t valor, gpioConf_t *p_vertor_pines)
 
 /*==================[external functions definition]==========================*/
 void app_main(void){
-	//printf("Hello world!\n");
 	
-	
-
-
     // Dato a mostrar en el display
     uint32_t data = 523;
 
