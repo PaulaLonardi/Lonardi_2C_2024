@@ -2,23 +2,38 @@
  *
  * @section genDesc General Description
  *
- * This section describes how the program works.
+ * Este proyecto controla un display de 7 segmentos mediante el microcontrolador ESP32 (de la cátedra), 
+ * utilizando pines GPIO para mostrar números en formato BCD. El valor numérico es convertido y mostrado demanera secuencial en el display.
+ * Se configuran periféricos como los GPIO, timers y las interrupciones para los botones. 
+ *
  *
  * <a href="https://drive.google.com/...">Operation Example</a>
  *
  * @section hardConn Hardware Connection
  *
- * |    Peripheral  |   ESP32   	|
- * |:--------------:|:--------------|
- * | 	PIN_X	 	| 	GPIO_X		|
+ *  * Conexiones de hardware entre el ESP32 y el display:
  *
+ * |    Peripheral  |   ESP32 Pin      |   Descripción                   		|
+ * |:--------------:|:-----------------|:---------------------------------------|
+ * | Segmento A     |   GPIO_20        | Control del segmento A del display 	|
+ * | Segmento B     |   GPIO_21        | Control del segmento B del display 	|
+ * | Segmento C     |   GPIO_22        | Control del segmento C del display 	|
+ * | Segmento D     |   GPIO_23        | Control del segmento D del display 	|
+ * | Dígito 1       |   GPIO_9         | Control del primer dígito del display 	|
+ * | Dígito 2       |   GPIO_18        | Control del segundo dígito del display |
+ * | Dígito 3       |   GPIO_19        | Control del tercer dígito del display 	|
+ * 
+ * Estos pines GPIO deben estar conectados a un display de 7 segmentos adecuado para que la representación BCD se muestre correctamente.
  *
+ *  @note El HW incluye el display de 7 segmentos y un microcontrolador ESP32.
+ * 
  * @section changelog Changelog
  *
- * |   Date	    | Description                                    |
- * |:----------:|:-----------------------------------------------|
- * | 12/09/2023 | Document creation		                         |
- *
+ * |   Date	    | Description                                      |
+ * |:----------:|:-------------------------------------------------|
+ * | 12/09/2023 | Document creation		                           |
+ * | 25/09/2023 | Añadida la documentación pedida en la corrección |
+ * 
  * @author Lonardi, Paula (paula.lonardi@ingenieria.uner.edu.ar)
  *
  */
