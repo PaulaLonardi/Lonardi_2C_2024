@@ -62,7 +62,21 @@ uint8_t teclas;
 
 
 /*==================[external functions definition]==========================*/
-
+/**
+ * @brief Actualiza los leds, encendiendo o apagando según corresponda
+ *
+ * Esta función se encarga de actualizar el estado de los leds
+ * - Si la distancia es menor a 10, se apagan todos
+ * - Si la distancia está entre 10 y 20 se prende el led 1
+ * - Si la distancia está entre 20 y 30 se prende el led 1 y 2
+ * - Si la distancia es mayor a 30, se prenden todos
+ * 
+ * 
+ * 
+ * @param void
+ *
+ * @return void
+ */
 void actualizar_led(){
 	if (distancia < 10)
     	{
@@ -93,7 +107,16 @@ void actualizar_led(){
 
 
 /*==================[internal functions declaration]=========================*/
-//aca van las tareas medir, mostrar y leer teclas
+/**
+ * @brief TAREA que mide la distancia utilizando el sensor ultrasónico HC-SR04.
+ *
+ * Tarea (se ejecuta en un bucle infinito). Si está "encendido" (la medición), la tarea mide y guarda la distancia utilizando la función "HcSr04ReadDistanceInCentimeters()".
+ * La tarea entra en espera utilizando "ulTaskNotifyTake()" hasta que recibe una notificación para volver a ejecutar el proceso de medición.
+ *
+ * @param[in] pvParameter Puntero a los parámetros pasados a la tarea.
+ *
+ * @return void
+ */
 void tarea_medir(void *pvParameter){
 	while (1)
 	{ 
@@ -106,6 +129,18 @@ void tarea_medir(void *pvParameter){
 	
 }
 
+
+/**
+ * @brief TAREA encargada de mostrar la mediciónmdiante LEDs y un display LCD.
+ *
+ * Tarea que se ejecuta en un bucle infinito. Si el sistema está encendido, actualiza el estado de los LEDs, 
+ * muestra la distancia en la terminal serie y, si no está en modo "hold" (mostrando una medición fija), 
+ * también muestra la distancia en el display LCD. Si el sistema está apagado, apaga los LEDs y el LCD.
+ *
+ * @param[in] pvParameter Puntero a los parámetros pasados a la tarea.
+ *
+ * @return void
+*/
 void tarea_mostrar(void *pvParameter){
 	while (1)
 	{
@@ -125,6 +160,18 @@ void tarea_mostrar(void *pvParameter){
 	
 }
 
+
+/**
+ * @brief TAREA encargada de leer el estado de las teclas.
+ *
+ * Se verifica constantemente el estado de los botones conectados.
+ * Si se presiona SWITCH_1, activa la medición; si se presiona SWITCH_2, desactiva el modo "hold".
+ * Si no se presiona ningún botón, desactiva la medición y activa el modo "hold".
+ *
+ * @param[in] pvParameter Puntero a los parámetros pasados a la tarea.
+ *
+ * @return void
+ */
 void tarea_leer_tecla(void *pvParameter){
 	while (1)
 	{
