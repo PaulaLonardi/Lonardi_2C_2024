@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.11.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Proyecto01_ejercicio_6: Template</title>
+<title>guia1_ej6: Template</title>
 <link rel="icon" href="icon.ico" type="image/x-icon" />
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -34,7 +34,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="fiuner.png"/></td>
   <td id="projectalign">
-   <div id="projectname">Proyecto01_ejercicio_6<span id="projectnumber">&#160;1.0</span>
+   <div id="projectname">guia1_ej6<span id="projectnumber">&#160;1.0</span>
    </div>
   </td>
     <td>        <div id="MSearchBox" class="MSearchBoxInactive">
@@ -109,23 +109,42 @@ $(function(){initNavTree('index.html',''); initResizable(true); });
 <div class="contents">
 <div class="textblock"><h1><a class="anchor" id="genDesc"></a>
 General Description</h1>
-<p>This section describes how the program works.</p>
+<p>Este proyecto controla un display de 7 segmentos mediante el microcontrolador ESP32 (de la cátedra), utilizando pines GPIO para mostrar números en formato BCD. El valor numérico es convertido y mostrado demanera secuencial en el display. Se configuran periféricos como los GPIO, timers y las interrupciones para los botones.</p>
 <p><a href="https://drive.google.com/...">Operation Example</a></p>
 <h1><a class="anchor" id="hardConn"></a>
 Hardware Connection</h1>
+<ul>
+<li>Conexiones de hardware entre el ESP32 y el display:</li>
+</ul>
 <table class="markdownTable">
 <tr class="markdownTableHead">
-<th class="markdownTableHeadCenter">Peripheral   </th><th class="markdownTableHeadLeft">ESP32    </th></tr>
+<th class="markdownTableHeadCenter">Peripheral   </th><th class="markdownTableHeadLeft">ESP32 Pin   </th><th class="markdownTableHeadLeft">Descripción    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyCenter">PIN_X   </td><td class="markdownTableBodyLeft">GPIO_X   </td></tr>
+<td class="markdownTableBodyCenter">Segmento A   </td><td class="markdownTableBodyLeft">GPIO_20   </td><td class="markdownTableBodyLeft">Control del segmento A del display    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyCenter">Segmento B   </td><td class="markdownTableBodyLeft">GPIO_21   </td><td class="markdownTableBodyLeft">Control del segmento B del display    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter">Segmento C   </td><td class="markdownTableBodyLeft">GPIO_22   </td><td class="markdownTableBodyLeft">Control del segmento C del display    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyCenter">Segmento D   </td><td class="markdownTableBodyLeft">GPIO_23   </td><td class="markdownTableBodyLeft">Control del segmento D del display    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter">Dígito 1   </td><td class="markdownTableBodyLeft">GPIO_9   </td><td class="markdownTableBodyLeft">Control del primer dígito del display    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyCenter">Dígito 2   </td><td class="markdownTableBodyLeft">GPIO_18   </td><td class="markdownTableBodyLeft">Control del segundo dígito del display    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter">Dígito 3   </td><td class="markdownTableBodyLeft">GPIO_19   </td><td class="markdownTableBodyLeft">Control del tercer dígito del display   </td></tr>
 </table>
+<p>Estos pines GPIO deben estar conectados a un display de 7 segmentos adecuado para que la representación BCD se muestre correctamente.</p>
+<dl class="section note"><dt>Nota</dt><dd>El HW incluye el display de 7 segmentos y un microcontrolador ESP32.</dd></dl>
 <h1><a class="anchor" id="changelog"></a>
 Changelog</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadCenter">Date   </th><th class="markdownTableHeadLeft">Description    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyCenter">12/09/2023   </td><td class="markdownTableBodyLeft">Document creation   </td></tr>
+<td class="markdownTableBodyCenter">12/09/2023   </td><td class="markdownTableBodyLeft">Document creation    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyCenter">25/09/2023   </td><td class="markdownTableBodyLeft">Añadida la documentación pedida en la corrección   </td></tr>
 </table>
 <dl class="section author"><dt>Autor</dt><dd>Lonardi, Paula (<a href="#" onclick="location.href='mai'+'lto:'+'pau'+'la'+'.lo'+'na'+'rdi'+'@i'+'nge'+'ni'+'eri'+'a.'+'une'+'r.'+'edu'+'.a'+'r'; return false;">paula<span class="obfuscator">.nosp@m.</span>.lon<span class="obfuscator">.nosp@m.</span>ardi@<span class="obfuscator">.nosp@m.</span>inge<span class="obfuscator">.nosp@m.</span>nieri<span class="obfuscator">.nosp@m.</span>a.un<span class="obfuscator">.nosp@m.</span>er.ed<span class="obfuscator">.nosp@m.</span>u.ar</a>) </dd></dl>
 </div></div><!-- PageDoc -->

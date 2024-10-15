@@ -247,6 +247,7 @@ SwitchActivInt(SWITCH_2, cambiar_hold, NULL);
         .param_p = NULL
     };
     TimerInit(&timer_medir);
+	
     timer_config_t timer_mostrar = {
         .timer = TIMER_B,
         .period = CONFIG_BLINK_PERIOD_TAREA_MOSTRAR_US,
