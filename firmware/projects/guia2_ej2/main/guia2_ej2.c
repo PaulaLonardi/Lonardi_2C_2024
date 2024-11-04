@@ -217,7 +217,7 @@ SwitchActivInt(SWITCH_2, cambiar_hold, NULL);
 
 /* Creación de tareas */
 xTaskCreate(&tarea_medir, "distancia_task",2048, NULL,5,&handle_tarea_medir);//LE PASO EL PUNTERO AL HANDLE
-xTaskCreate(&tarea_mostrar, "distancia_task",512, NULL,5,&handle_tarea_mostrar);
+xTaskCreate(&tarea_mostrar, "aceleracion_task",2048, NULL,5,&handle_tarea_mostrar);
 
  /* Inicialización del conteo de timers */
 TimerStart(timer_medir.timer);

@@ -2,24 +2,31 @@
  *
  * @section genDesc General Description
  *
- * This section describes how the program works.
- *
+ * El programa opera a partir de tres tareas, que miden la distancia, 
+ * y apartir de ella generar respuestas, que son las siguientes alarmas:
+ * Led verde (1) para distancias mayores a 5 metros (sin alarma sonora)
+ * Led verde y amarillo (2) para distancias entre 5 y 3 metros, con alarma sonora de precaucion
+ * Led verde, amariilo y rojo (3) para distancias menores a 3 metros, con alarma sonora depeligro
+ * A su vez en situaciones de peligro, precaución y caidas envía los mensajes requeridos mediante la UART
  * <a href="https://drive.google.com/...">Operation Example</a>
  *
  * @section hardConn Hardware Connection
  *
  * |    Peripheral  |   ESP32   	|
  * |:--------------:|:--------------|
- * | 	PIN_X	 	| 	GPIO_X		|
+ * | 	HC-SR04  	| 	GPIO_2 (Trig), GPIO_3 (Echo) 	|
+ * | 	LED_1		| 	GPIO_X			|
+ * | 	LED_2		| 	GPIO_Y			|
+ * | 	LED_3		| 	GPIO_Z			|
  *
  *
  * @section changelog Changelog
  *
  * |   Date	    | Description                                    |
  * |:----------:|:-----------------------------------------------|
- * | 12/09/2023 | Document creation		                         |
+ * | 04/11/2024 | Document creation		                         |
  *
- * @author Albano Peñalva (albano.penalva@uner.edu.ar)
+* @author Lonardi, Paula (paula.lonardi@ingenieria.uner.edu.ar)
  *
  */
 
@@ -55,6 +62,7 @@ uint16_t senial_aceleracion_z;
 uint16_t distancia;
 TaskHandle_t handle_tarea_medir = NULL;
 TaskHandle_t aceleracion_task_handle = NULL;
+TaskHandle_t alarma_task_handle = NULL;
 /*==================[internal functions declaration]=========================*/
 
 
@@ -84,9 +92,10 @@ void FuncTimerA(void* param){
 
 /**
  * @brief TAREA que gestiona la alarma, encendiendo los leds de la siguiente manera
- * Led verde para distancias mayores a 5 metros
- * Led verde y amarillo para distancias entre 5 y 3 metros (precaucion)
- * Led verde, amariilo y rojo para distancias menores a 3 metros (peligro)
+ * Led verde (1) para distancias mayores a 5 metros
+ * Led verde y amarillo (2) para distancias entre 5 y 3 metros (precaucion)
+ * Led verde, amariilo y rojo (3) para distancias menores a 3 metros (peligro)
+ * A su vez en situaciones de peligro y precaución, envía los mensajes requeridos mediante la UART
  *
  * @param void
  *
@@ -129,6 +138,16 @@ void tarea_alarma(void *pvParameter){
 	}
 }
 
+
+/**
+ * @brief TAREA que gestiona el sensor de aceleración. Realiza la conversion de los valores
+ * de voltaje (que llegan a partir de los canales ch0, ch1 y ch3) a G, 
+ * y si este valor es mayor a 4, envía el mensaje correspondiente mediante la UART
+ * 
+ * @param void
+ *
+ * @return void
+ */
 void tarea_aceleracion(void *pvParameter){
 	while(true){
 
@@ -192,7 +211,9 @@ void app_main(void){
 
 /* Creación de tareas */
 xTaskCreate(&tarea_medir, "distancia_task",2048, NULL,5,&handle_tarea_medir);//LE PASO EL PUNTERO AL HANDLE
-xTaskCreate(&tarea_medir, "aceleracion_task",2048, NULL,5,&aceleracion_task_handle);//LE PASO EL PUNTERO AL HANDLE
+xTaskCreate(&tarea_aceleracion, "aceleracion_task",2048, NULL,5,&aceleracion_task_handle);//LE PASO EL PUNTERO AL HANDLE
+xTaskCreate(&tarea_alarma, "alarma_task",2048, NULL,5,&alarma_task_handle);//LE PASO EL PUNTERO AL HANDLE
+
 
  /* Inicialización del conteo de timers */
 TimerStart(timer_medir.timer);
