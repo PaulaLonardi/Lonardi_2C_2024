@@ -1,33 +1,43 @@
-/*! @mainpage Template
+/*! @mainpage Sistema de Detección para Ciclistas
  *
- * @section genDesc General Description
+ * @section genDesc Descripción General
  *
- * El programa opera a partir de tres tareas, que miden la distancia, 
- * y apartir de ella generar respuestas, que son las siguientes alarmas:
- * Led verde (1) para distancias mayores a 5 metros (sin alarma sonora)
- * Led verde y amarillo (2) para distancias entre 5 y 3 metros, con alarma sonora de precaucion
- * Led verde, amariilo y rojo (3) para distancias menores a 3 metros, con alarma sonora depeligro
- * A su vez en situaciones de peligro, precaución y caidas envía los mensajes requeridos mediante la UART
- * <a href="https://drive.google.com/...">Operation Example</a>
+ * Este programa controla un dispositivo basado en ESP-EDU diseñado para mejorar la seguridad de ciclistas. 
+ * Incluye tres tareas que gestionan la distancia a objetos, las alarmas visuales y sonoras, 
+ * y la detección de caídas mediante el acelerómetro analógico. 
  *
- * @section hardConn Hardware Connection
+ * 
+ * - Indicadores LED:
+ *   - LED verde para distancias > 5 metros (sin alarma sonora).
+ *   - LED verde y amarillo para distancias de 3 a 5 metros, con alarma sonora de precaución.
+ *   - LED verde, amarillo y rojo para distancias < 3 metros, con alarma sonora de peligro.
+ * 
+ * - Comunicación UART:
+ *   - Envía mensajes de "Peligro, vehículo cerca" y "Precaución, vehículo cerca" segun corresponda.
+ *   - En caso de caída (cuando se detecta la aceleracion de 4), se envía "Caída detectada".
  *
- * |    Peripheral  |   ESP32   	|
- * |:--------------:|:--------------|
- * | 	HC-SR04  	| 	GPIO_2 (Trig), GPIO_3 (Echo) 	|
- * | 	LED_1		| 	GPIO_X			|
- * | 	LED_2		| 	GPIO_Y			|
- * | 	LED_3		| 	GPIO_Z			|
+ * Ejemplo de funcionamiento: <a href="https://drive.google.com/...">Operation Example</a>
  *
+ * @section hardConn Conexiones de Hardware
  *
- * @section changelog Changelog
+ * | Periférico   | ESP32                |
+ * |--------------|----------------------|
+ * | HC-SR04      | GPIO_3 (Trig), GPIO_2 (Echo) |
+ * | LED_1 (Verde)| GPIO_11              |
+ * | LED_2 (Amarillo) | GPIO_10           |
+ * | LED_3 (Rojo) | GPIO_5               |
+ * | Buzzer       | GPIO_2               |
+ * | UART         | UART_CONNECTOR       |
+
  *
- * |   Date	    | Description                                    |
- * |:----------:|:-----------------------------------------------|
- * | 04/11/2024 | Document creation		                         |
+ * @section changelog Historial de Cambios
  *
-* @author Lonardi, Paula (paula.lonardi@ingenieria.uner.edu.ar)
+ * | Fecha       | Descripción                                      |
+ * |-------------|--------------------------------------------------|
+ * | 04/11/2024  | Creación de la documentación                     |
  *
+ * @section author Autor
+ * Lonardi, Paula (paula.lonardi@ingenieria.uner.edu.ar)
  */
 
 /*==================[inclusions]=============================================*/
@@ -52,7 +62,7 @@
 #include "buzzer.h"
 /*==================[macros and definitions]=================================*/
 #define CONFIG_BLINK_PERIOD_TAREA_MEDIR_US 500000
-#define CONFIG_BLINK_PERIOD_TAREA_ACELERACION_US 0.1 //100 HZ
+#define CONFIG_BLINK_PERIOD_TAREA_ACELERACION_US 10000 // 100 Hz
 
 uint16_t senial_aceleracion_x;
 uint16_t senial_aceleracion_y;
@@ -78,7 +88,7 @@ TaskHandle_t alarma_task_handle = NULL;
 void tarea_medir(void *pvParameter){
 	while (1)
 	{ 
-		distancia = 100 * HcSr04ReadDistanceInCentimeters();
+		distancia = HcSr04ReadDistanceInCentimeters()/100;
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);   
 	}
 }
@@ -114,7 +124,7 @@ void tarea_alarma(void *pvParameter){
 
 			GPIOOn(GPIO_2);
 			vTaskDelay(500/portTICK_PERIOD_MS);
-			GPIOOff(GPIO_2);
+			GPIOOff(GPIO_2);//aca tendria que haber un delay
 			}
 			else if(distancia > 3 && distancia < 5)
 			{
@@ -136,6 +146,7 @@ void tarea_alarma(void *pvParameter){
 			}
 		
 	}
+	vTaskDelay(200 / portTICK_PERIOD_MS); // Pausa fuera de los condicionales
 }
 
 
@@ -155,14 +166,16 @@ void tarea_aceleracion(void *pvParameter){
 		AnalogInputReadSingle(CH1, &senial_aceleracion_y);
 		AnalogInputReadSingle(CH3, &senial_aceleracion_z);
 
-		if((senial_aceleracion_x + senial_aceleracion_y + senial_aceleracion_z)*(5.5/3.3) > 4)
+		float aceleracion_x = (senial_aceleracion_x / 1000.0 - 1.65) / 0.3;
+        float aceleracion_y = (senial_aceleracion_y / 1000.0 - 1.65) / 0.3;
+        float aceleracion_z = (senial_aceleracion_z / 1000.0 - 1.65) / 0.3;
+
+		if((aceleracion_x + aceleracion_y + aceleracion_z) > 4)
 		{
 			UartSendString(UART_CONNECTOR, "Caida detectada\r\n");
 		}
 
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY); 	
-        vTaskNotifyGiveFromISR(aceleracion_task_handle, pdFALSE); 
-
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     }
 }
 
@@ -177,12 +190,45 @@ void FuncTimerB(void* param){
 /*==================[external functions definition]==========================*/
 void app_main(void){
 	//printf("Hello world!\n");
-	HcSr04Init(GPIO_3, GPIO_1);
+	HcSr04Init(GPIO_3, GPIO_2);
 	LedsInit();
 	LedsOffAll();
 
-    GPIOInit(GPIO_2,GPIO_OUTPUT);
-    BuzzerInit(GPIO_2);
+    GPIOInit(GPIO_1,GPIO_OUTPUT);
+    //BuzzerInit(GPIO_2);
+	
+	// Configuración para CH0
+	analog_input_config_t analog_CH0 = {
+		.input = CH0,         // Canal CH0
+		.mode = ADC_SINGLE,   
+		.func_p = NULL,
+		.param_p = NULL,
+		.sample_frec = 0
+	};
+	AnalogInputInit(&analog_CH0);
+
+	// Configuración para CH1
+	analog_input_config_t analog_CH1 = {
+		.input = CH1,         // Canal CH1
+		.mode = ADC_SINGLE,
+		.func_p = NULL,
+		.param_p = NULL,
+		.sample_frec = 0
+	};
+	AnalogInputInit(&analog_CH1);
+
+	// Configuración para CH3
+	analog_input_config_t analog_CH3 = {
+		.input = CH3,         // Canal CH3
+		.mode = ADC_SINGLE,
+		.func_p = NULL,
+		.param_p = NULL,
+		.sample_frec = 0
+	};
+	AnalogInputInit(&analog_CH3);
+
+	// Inicialización de la salida DAC
+	AnalogOutputInit();
 
 	/* Inicialización de timers */
     timer_config_t timer_medir = {
