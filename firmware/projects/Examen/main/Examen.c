@@ -35,7 +35,7 @@
 
 | Buzzer          | ESP32             |
 |-----------------|-------------------|
-| Señal           | GPIO_2            |
+| Señal           | GPIO_1            |
 | Gnd             | GND               |
 
  *
@@ -52,26 +52,19 @@
 /*==================[inclusions]=============================================*/
 #include <stdio.h>
 #include <stdint.h>
-
 #include <stdbool.h>
-
 #include "hc_sr04.h"
 #include "gpio_mcu.h"
-
 #include <led.h>
-
 #include "timer_mcu.h"
 #include "uart_mcu.h"
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-
 #include "analog_io_mcu.h"
-
 #include "buzzer.h"
 /*==================[macros and definitions]=================================*/
 #define CONFIG_BLINK_PERIOD_TAREA_MEDIR_US 500000
-#define CONFIG_BLINK_PERIOD_TAREA_ACELERACION_US 10000 // 100 Hz
+#define CONFIG_BLINK_PERIOD_TAREA_ACELERACION_US 10000 // 100 Hz  P =  0.01s
 
 uint16_t senial_aceleracion_x;
 uint16_t senial_aceleracion_y;
@@ -111,10 +104,10 @@ void FuncTimerA(void *param)
 }
 
 /**
- * @brief TAREA que gestiona la alarma, encendiendo los leds de la siguiente manera
- * Led verde (1) para distancias mayores a 5 metros
- * Led verde y amarillo (2) para distancias entre 5 y 3 metros (precaucion)
- * Led verde, amariilo y rojo (3) para distancias menores a 3 metros (peligro)
+ * @brief TAREA que gestiona la alarma sonora y  encendiendo los leds de la siguiente manera:
+ * - Led verde (1) para distancias mayores a 5 metros
+ * - Led verde y amarillo (2) para distancias entre 5 y 3 metros (precaucion)
+ * - Led verde, amariilo y rojo (3) para distancias menores a 3 metros (peligro)
  * A su vez en situaciones de peligro y precaución, envía los mensajes requeridos mediante la UART
  *
  * @param void
