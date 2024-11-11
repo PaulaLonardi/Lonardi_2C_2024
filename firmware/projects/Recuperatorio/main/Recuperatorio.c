@@ -4,23 +4,23 @@
  *
  * El programa responde a la consigna del recuperatorio del parcial de electronica programable
  * Se trata de un sistema de pesaje de camiones basado en la placa ESP-EDU.
- * - Se utiliza un sensor de distancia, y con ella se calcula la velocidad, 
- * - Se realiza el control de una barrera 
+ * - Se utiliza un sensor de distancia, y con ella se calcula la velocidad,
+ * - Se realiza el control de una barrera
  * - Se mide mediante entradas analógicas de peso del camion
  * - Se comunica a la UARTel peso y la velocidad maxima tuvo el camion durante el trayecto
- * 
+ *
  *  Indicadores LED:
- *  - LED 3 para velocidad > 8 m/s 
+ *  - LED 3 para velocidad > 8 m/s
  *  - LED 2 para velocidad de 0 a 8 m/s
  *  - LED 1 cuando el veículo está detenido
- * 
+ *
  *  Comunicación UART:
  *   - Envía mensajes de el peso del camion y la velocidad máxima alcanzada por este durante el recorrido (los 10 m)
  *
  * <a href="https://drive.google.com/...">Operation Example</a>
  *
  * @section hardConn Hardware Connection
- * 
+ *
  *| HC-SR04        | ESP32               |
  *|----------------|---------------------|
  *| Vcc            | 5V                  |
@@ -84,9 +84,9 @@ TaskHandle_t handle_tarea_pesaje = NULL;
  * @brief TAREA que mide la distancia utilizando el sensor ultrasónico HC-SR04.
  *
  * - La tarea mide y guarda la distancia utilizando la función "HcSr04ReadDistanceInCentimeters()", y luego pasandolo a m.
- * La tarea entra en espera utilizando "ulTaskNotifyTake()" hasta que recibe una notificación para volver a ejecutar 
+ * La tarea entra en espera utilizando "ulTaskNotifyTake()" hasta que recibe una notificación para volver a ejecutar
  * el proceso de medición.
- * - Mide la velocidad y la guarda. Tambien compara las velocidades y se queda con maxima 
+ * - Mide la velocidad y la guarda. Tambien compara las velocidades y se queda con maxima
  * - Se encarga del encendido y apagado de los leds correspondientes segun la distancia
  *
  * @param[in] pvParameter Puntero a los parámetros pasados a la tarea.
@@ -101,7 +101,7 @@ void tarea_medir(void *pvParameter)
 	{
 		distancia_anterior = distancia;
 		distancia = HcSr04ReadDistanceInCentimeters() / 100; // lo paso a metros
-		//distancia_anterior = distancia;
+		// distancia_anterior = distancia;
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY); /* La tarea espera en este punto hasta recibir una notificación */
 
 		// pesaje = false;
@@ -146,12 +146,11 @@ void tarea_medir(void *pvParameter)
 	}
 }
 
-
 /**
  * @brief Esta tarea se encarga de realizar el pesaje del camion cuando este se encuentra en estado de reposo.
  * Para calcular el peso, se toma un promedio de 50 muestras de la suma de ambas galgas.
  * Luego, se encarga de informar mediante la uart el valor del peso y la velocidad maxima que este tuvo durante el recorrido
- * @param void 
+ * @param void
  *
  * @return void
  */
@@ -182,7 +181,7 @@ void tarea_pesar(void *pvParameter)
 			}
 			else
 			{
-				promedio_peso = ((peso_g1 + peso_g2) / 50)*(20000/3.3); //realizo la conversion a kilos
+				promedio_peso = ((peso_g1 + peso_g2) / 50) * (20000 / 3.3); // realizo la conversion a kilos
 				iteracion = 0;
 				UartSendString(UART_PC, "Peso: ");
 				UartSendString(UART_PC, (const char *)UartItoa(promedio_peso, 10));
@@ -196,11 +195,9 @@ void tarea_pesar(void *pvParameter)
 	}
 }
 
-
-
 /**
  * @brief Esta funcion se encarga de poner en alto el gpio correspondiente a la barrera
- * @param void 
+ * @param void
  *
  * @return void
  */
@@ -210,7 +207,7 @@ void abrir_barrera()
 };
 /**
  * @brief Esta funcion se encarga de poner en bajo el gpio correspondiente a la barrera
- * @param void 
+ * @param void
  *
  * @return void
  */
@@ -226,7 +223,7 @@ void cerrar_barrera()
  * Si se ingresa 'O', se abre la barrera.
  * Si se ingresa 'C', se cierra la barrera.
  *
- * @param void 
+ * @param void
  *
  * @return void
  */
@@ -303,7 +300,6 @@ void app_main(void)
 		.sample_frec = 0};
 	AnalogInputInit(&analog_CH2);
 
-
 	serial_config_t config_serie = {
 		.port = UART_PC,
 		.baud_rate = 9600,
@@ -312,7 +308,7 @@ void app_main(void)
 	UartInit(&config_serie);
 
 	/* Creación de tareas */
-	xTaskCreate(&tarea_medir, "medir_task", 2048, NULL, 5, &handle_tarea_medir);	// LE PASO EL PUNTERO AL HANDLE
+	xTaskCreate(&tarea_medir, "medir_task", 2048, NULL, 5, &handle_tarea_medir);  // LE PASO EL PUNTERO AL HANDLE
 	xTaskCreate(&tarea_pesar, "pesar_task", 2048, NULL, 5, &handle_tarea_pesaje); // LE PASO EL PUNTERO AL HANDLE
 
 	/* Inicialización del conteo de timers */
