@@ -2,16 +2,29 @@
  *
  * @section genDesc General Description
  *
- * This section describes how the program works.
+ * El programa responde a la consigna del recuperatorio del parcial de electronica programable
  *
  * <a href="https://drive.google.com/...">Operation Example</a>
  *
  * @section hardConn Hardware Connection
+ * 
+ *| HC-SR04        | ESP32               |
+ *|----------------|---------------------|
+ *| Vcc            | 5V                  |
+ *| Echo           | GPIO_3              |
+ *| Trigger        | GPIO_2              |
+ *| Gnd            | GND                 |
  *
- * |    Peripheral  |   ESP32   	|
- * |:--------------:|:--------------|
- * | 	PIN_X	 	| 	GPIO_X		|
- *
+ *| Barrera         | ESP32             |
+ *|-----------------|-------------------|
+ *| Señal           | GPIO_1            |
+ *| Gnd             | GND               |
+
+ *| Balanza         | ESP32             |
+ *|-----------------|-------------------|
+ *| g1           	| CH1            	|
+ *| g2             	| CH2               |
+
  *
  * @section changelog Historial de Cambios
  *
@@ -58,7 +71,12 @@ TaskHandle_t handle_tarea_pesaje = NULL;
 /**
  * @brief TAREA que mide la distancia utilizando el sensor ultrasónico HC-SR04.
  *
-*
+ * - La tarea mide y guarda la distancia utilizando la función "HcSr04ReadDistanceInCentimeters()", y luego pasandolo a m.
+ * La tarea entra en espera utilizando "ulTaskNotifyTake()" hasta que recibe una notificación para volver a ejecutar 
+ * el proceso de medición.
+ * - Mide la velocidad, la guarda y tambien mide la velocidad maxima 
+ * - Se encarga del encendido y apagado de los leds correspondientes segun la distancia
+ *
  * @param[in] pvParameter Puntero a los parámetros pasados a la tarea.
  *
  * @return void
@@ -116,6 +134,16 @@ void tarea_medir(void *pvParameter)
 	}
 }
 
+
+/**
+ * @brief Esta tarea se encarga de realizar el pesaje del camion cuando este se encuentra en estado de reposo.
+ * Para calcular el peso, se toma un promedio de 50 muestras de la suma de ambas galgas.
+ * Luego, se encarga de informar mediante la uart el valor del peso y la velocidad maxima que este tuvo durante el recorrido
+ * @param void 
+ *
+ * @return void
+ */
+
 void tarea_pesar(void *pvParameter)
 {
 	uint16_t peso_anterior_g1 = 0;
@@ -154,17 +182,40 @@ void tarea_pesar(void *pvParameter)
 	}
 }
 
+
+
+/**
+ * @brief Esta funcion se encarga de poner en alto el gpio correspondiente a la barrera
+ * @param void 
+ *
+ * @return void
+ */
 void abrir_barrera()
 {
 	GPIOOn(GPIO_1);
 };
-
+/**
+ * @brief Esta funcion se encarga de poner en bajo el gpio correspondiente a la barrera
+ * @param void 
+ *
+ * @return void
+ */
 void cerrar_barrera()
 {
 	GPIOOff(GPIO_1);
 };
 
-
+/**
+ * @brief Lee una tecla ingresada desde la terminal y ejecuta el par de acciones basadas en el carácter recibido.
+ *
+ * Esta función lee un byte desde el puerto UART y, dependiendo del valor de la tecla ingresada, realiza una de las dos acciones:
+ * Si se ingresa 'O', se abre la barrera.
+ * Si se ingresa 'C', se cierra la barrera.
+ *
+ * @param void 
+ *
+ * @return void
+ */
 void leer_teclado()
 {
 	uint8_t letra;
