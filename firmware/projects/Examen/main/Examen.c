@@ -21,23 +21,26 @@
  * @section hardConn Conexiones de Hardware
  *
  * 
-| HC-SR04        | ESP32               |
-|----------------|---------------------|
-| Vcc            | 5V                  |
-| Echo           | GPIO_3              |
-| Trigger        | GPIO_2              |
-| Gnd            | GND                 |
-
-| Módulo Bluetooth | ESP32            |
-|------------------|------------------|
-| Tx               | GPIO_16          |
-| Rx               | GPIO_17          |
-
-| Buzzer          | ESP32             |
-|-----------------|-------------------|
-| Señal           | GPIO_1            |
-| Gnd             | GND               |
-
+*| HC-SR04        | ESP32               |
+*|----------------|---------------------|
+*| Vcc            | 5V                  |
+*| Echo           | GPIO_3              |
+*| Trigger        | GPIO_2              |
+*| Gnd            | GND                 |
+*
+*| Módulo Bluetooth | ESP32            |
+*|-------------------|------------------|
+*| Tx               | GPIO_16          |
+*| Rx               | GPIO_17          |
+*
+*| Buzzer          | ESP32             |
+*|-----------------|-------------------|
+*| Señal           | GPIO_1            |
+*| Gnd             | GND               |
+*
+*|acelerometro		| ESP32				|
+*|-----------------	|-------------------|
+*|canal_x			|CH0				|
  *
  * @section changelog Historial de Cambios
  *
@@ -79,7 +82,7 @@ TaskHandle_t alarma_task_handle = NULL;
 
 /**
  * @brief TAREA encargada de medir la distancia
- * (mide en cm, y multiplico por 100 para obtener el valor en metros)
+ * (mide en cm, y divido por 100 para obtener el valor en metros)
  *
  * @param void
  *
@@ -202,7 +205,7 @@ void app_main(void)
 	LedsOffAll();
 
 	GPIOInit(GPIO_1, GPIO_OUTPUT);
-	// BuzzerInit(GPIO_2);
+
 
 	// Configuración para CH0
 	analog_input_config_t analog_CH0 = {
