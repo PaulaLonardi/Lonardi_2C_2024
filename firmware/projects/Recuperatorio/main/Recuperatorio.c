@@ -3,6 +3,19 @@
  * @section genDesc General Description
  *
  * El programa responde a la consigna del recuperatorio del parcial de electronica programable
+ * Se trata de un sistema de pesaje de camiones basado en la placa ESP-EDU.
+ * - Se utiliza un sensor de distancia, y con ella se calcula la velocidad, 
+ * - Se realiza el control de una barrera 
+ * - Se mide mediante entradas analógicas de peso del camion
+ * - Se comunica a la UARTel peso y la velocidad maxima tuvo el camion durante el trayecto
+ * 
+ *  Indicadores LED:
+ *  - LED 3 para velocidad > 8 m/s 
+ *  - LED 2 para velocidad de 0 a 8 m/s
+ *  - LED 1 cuando el veículo está detenido
+ * 
+ *  Comunicación UART:
+ *   - Envía mensajes de el peso del camion y la velocidad máxima alcanzada por este durante el recorrido (los 10 m)
  *
  * <a href="https://drive.google.com/...">Operation Example</a>
  *
@@ -49,7 +62,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "analog_io_mcu.h"
-#include "buzzer.h"
 
 /*==================[macros and definitions]=================================*/
 #define CONFIG_BLINK_PERIOD_TAREA_MEDIR_US 100000 // 10hz
@@ -57,8 +69,8 @@
 
 /*==================[internal data definition]===============================*/
 uint16_t distancia;
-uint16_t peso_g1;
-uint16_t peso_g2;
+uint16_t peso_g1 = 0;
+uint16_t peso_g2 = 0;
 float promedio_peso;
 float velocidad;
 float velocidad_maxima;
@@ -74,7 +86,7 @@ TaskHandle_t handle_tarea_pesaje = NULL;
  * - La tarea mide y guarda la distancia utilizando la función "HcSr04ReadDistanceInCentimeters()", y luego pasandolo a m.
  * La tarea entra en espera utilizando "ulTaskNotifyTake()" hasta que recibe una notificación para volver a ejecutar 
  * el proceso de medición.
- * - Mide la velocidad, la guarda y tambien mide la velocidad maxima 
+ * - Mide la velocidad y la guarda. Tambien compara las velocidades y se queda con maxima 
  * - Se encarga del encendido y apagado de los leds correspondientes segun la distancia
  *
  * @param[in] pvParameter Puntero a los parámetros pasados a la tarea.
@@ -157,6 +169,8 @@ void tarea_pesar(void *pvParameter)
 
 		if (pesaje)
 		{
+			peso_anterior_g1 = peso_g1;
+			peso_anterior_g2 = peso_g2;
 			AnalogInputReadSingle(CH1, &peso_g1);
 			AnalogInputReadSingle(CH2, &peso_g2);
 			iteracion++;
@@ -168,7 +182,7 @@ void tarea_pesar(void *pvParameter)
 			}
 			else
 			{
-				promedio_peso = (peso_g1 + peso_g2) / 50;
+				promedio_peso = ((peso_g1 + peso_g2) / 50)*(20000/3.3); //realizo la conversion a kilos
 				iteracion = 0;
 				UartSendString(UART_PC, "Peso: ");
 				UartSendString(UART_PC, (const char *)UartItoa(promedio_peso, 10));
@@ -298,8 +312,8 @@ void app_main(void)
 	UartInit(&config_serie);
 
 	/* Creación de tareas */
-	xTaskCreate(&tarea_medir, "distancia_task", 2048, NULL, 5, &handle_tarea_medir);	// LE PASO EL PUNTERO AL HANDLE
-	xTaskCreate(&tarea_pesar, "aceleracion_task", 2048, NULL, 5, &handle_tarea_pesaje); // LE PASO EL PUNTERO AL HANDLE
+	xTaskCreate(&tarea_medir, "medir_task", 2048, NULL, 5, &handle_tarea_medir);	// LE PASO EL PUNTERO AL HANDLE
+	xTaskCreate(&tarea_pesar, "pesar_task", 2048, NULL, 5, &handle_tarea_pesaje); // LE PASO EL PUNTERO AL HANDLE
 
 	/* Inicialización del conteo de timers */
 	TimerStart(timer_medir.timer);
